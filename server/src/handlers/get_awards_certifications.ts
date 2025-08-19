@@ -1,8 +1,18 @@
+import { db } from '../db';
+import { awardsCertificationsTable } from '../db/schema';
 import { type AwardCertification } from '../schema';
+import { desc } from 'drizzle-orm';
 
 export const getAwardsCertifications = async (): Promise<AwardCertification[]> => {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is fetching all awards and certifications from the database.
-    // Results should be ordered by date_received descending (most recent first).
-    return [];
+  try {
+    const results = await db.select()
+      .from(awardsCertificationsTable)
+      .orderBy(desc(awardsCertificationsTable.date_received))
+      .execute();
+
+    return results;
+  } catch (error) {
+    console.error('Failed to fetch awards and certifications:', error);
+    throw error;
+  }
 };

@@ -1,13 +1,15 @@
+import { db } from '../db';
+import { portfolioProjectsTable } from '../db/schema';
 import { type CreatePortfolioProjectInput, type PortfolioProject } from '../schema';
 
 export const createPortfolioProject = async (input: CreatePortfolioProjectInput): Promise<PortfolioProject> => {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is creating a new portfolio project entry and persisting it in the database.
-    // The technologies array should be converted to a JSON string for storage.
+  try {
+    // Convert technologies array to JSON string for storage
     const technologiesJson = JSON.stringify(input.technologies);
     
-    return Promise.resolve({
-        id: 0, // Placeholder ID
+    // Insert portfolio project record
+    const result = await db.insert(portfolioProjectsTable)
+      .values({
         title: input.title,
         description: input.description,
         image_url: input.image_url,
@@ -15,8 +17,19 @@ export const createPortfolioProject = async (input: CreatePortfolioProjectInput)
         github_url: input.github_url,
         technologies: technologiesJson,
         display_order: input.display_order || 0,
-        is_featured: input.is_featured,
-        created_at: new Date(),
-        updated_at: new Date()
-    } as PortfolioProject);
+        is_featured: input.is_featured
+      })
+      .returning()
+      .execute();
+
+    const project = result[0];
+    return {
+      ...project,
+      // Parse technologies JSON string back to ensure proper type
+      technologies: project.technologies
+    };
+  } catch (error) {
+    console.error('Portfolio project creation failed:', error);
+    throw error;
+  }
 };

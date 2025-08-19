@@ -1,9 +1,19 @@
+import { db } from '../db';
+import { contactFormTable } from '../db/schema';
+import { desc } from 'drizzle-orm';
 import { type ContactForm } from '../schema';
 
 export const getContactForms = async (): Promise<ContactForm[]> => {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is fetching all contact form submissions from the database.
-    // Results should be ordered by submitted_at descending (most recent first).
-    // This is typically used for admin purposes to view contact form submissions.
-    return [];
+  try {
+    // Fetch all contact form submissions ordered by submitted_at descending (most recent first)
+    const results = await db.select()
+      .from(contactFormTable)
+      .orderBy(desc(contactFormTable.submitted_at))
+      .execute();
+
+    return results;
+  } catch (error) {
+    console.error('Failed to get contact forms:', error);
+    throw error;
+  }
 };
